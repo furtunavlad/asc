@@ -27,8 +27,6 @@ main:
 	pop %ebx
 	pop %ebx
 	
-	
-	
 et_exit:
 	movl $1, %eax
 	movl $1, %ebx
