@@ -8,8 +8,9 @@
 	columnIndex: .space 4
 	p: .space 4
 	k: .space 4
+	count: .zero 4
 	matrice: .zero 1600
-	matriceExt: .zero 1600
+	copy_matrice: .zero 1600
 	
 .text
 
@@ -42,8 +43,41 @@ main:
 	pop %ebx
 	pop %ebx
 	
+	// incarcam matricile in edi si esi
+	lea matrice, %edi
+	lea copy_matrice, %esi
+
+// de p ori citim celulele
+citire_celule:
+	movl count, %ecx
+	cmp %ecx, p
+	je afisare_matrice
+	
+	// daca < p , citim index-ul din stanga apoi cel din dreapta
+	push $lineIndex
+	push $formatScanf
+	call scanf
+	pop %ebx
+	pop %ebx
+	
+	push $columnIndex
+	push $formatScanf
+	call scanf
+	pop %ebx
+	pop %ebx
+	
+	// vom modifica matrice[lineIndex][columnIndex] pt ambele matrici
+	movl $0, %edx
+	movl lineIndex, %eax
+	mull m
+	addl columnIndex, %eax
+	movl $1, (%edi, %eax, 4)
+	movl $1, (%esi, %eax, 4)
+	
+	incl count
+
+
 afisare_matrice:
-	lea matrice, %edi 
 	movl $0, lineIndex
 
 for_lines:
