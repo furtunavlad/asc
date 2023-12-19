@@ -75,7 +75,7 @@ citire_celule:
 	movl $1, (%esi, %eax, 4)
 	
 	incl count
-
+	jmp citire_celule
 
 afisare_matrice:
 	movl $0, lineIndex
