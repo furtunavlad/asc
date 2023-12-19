@@ -1,1 +1,1 @@
-tema si materiale pentru Arhitectura Sistemelor de Calcul
+Homework and resources for "Computer Systems Architecture" course
