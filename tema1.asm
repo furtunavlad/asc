@@ -24,12 +24,20 @@ main:
 	call scanf
 	pop %ebx
 	pop %ebx
-	
+// incrementam liniile cu 2, pt a obtine matricea extinsa
+	movl m, %eax 
+	addl $2, %eax
+	movl %eax, m
+		
 	push $n
 	push $formatScanf
 	call scanf
 	pop %ebx
 	pop %ebx
+// incrementam cu 2 si coloanele
+	movl n, %eax
+	addl $2, %eax
+	movl %eax, n
 	
 	push $p
 	push $formatScanf
@@ -47,7 +55,7 @@ citire_celule:
 	cmp %ecx, p
 	je afisare_matrice
 	
-	// daca < p , citim index-ul din stanga apoi cel din dreapta
+// daca < p , citim index-ul din stanga apoi cel din dreapta
 	push $lineIndex
 	push $formatScanf
 	call scanf
@@ -60,7 +68,16 @@ citire_celule:
 	pop %ebx
 	pop %ebx
 	
-	// vom modifica matrice[lineIndex][columnIndex] pt ambele matrici
+// incrementam cei doi indexi abia cititi, pt a plasa 1 la adresa potrivita
+	movl lineIndex, %eax
+	incl %eax
+	movl %eax, lineIndex
+	
+	movl columnIndex, %eax
+	incl %eax
+	movl %eax, columnIndex
+	
+// vom modifica matrice[lineIndex][columnIndex] pt ambele matrici
 	movl $0, %edx
 	movl lineIndex, %eax
 	mull m
@@ -119,5 +136,5 @@ cont_for_lines:
 
 et_exit:
 	movl $1, %eax
-	movl $1, %ebx
+	xor %ebx, %ebx
 	int $0x80
