@@ -37,12 +37,6 @@ main:
 	pop %ebx
 	pop %ebx
 	
-	push $k
-	push $formatScanf
-	call scanf
-	pop %ebx
-	pop %ebx
-	
 	// incarcam matricile in edi si esi
 	lea matrice, %edi
 	lea copy_matrice, %esi
