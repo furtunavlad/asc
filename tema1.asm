@@ -4,6 +4,8 @@
 	endl: .asciz "\n"
 	m: .space 4
 	n: .space 4
+	decm: .space 4
+	decn: .space 4
 	lineIndex: .space 4
 	columnIndex: .space 4
 	p: .space 4
@@ -18,26 +20,28 @@
 
 main:
 
-//citire pentru m - linii, n - coloane, p - nr celule vii, k - nr evolutii
+// citire pentru m - linii, n - coloane, p - nr celule vii, k - nr evolutii
 	push $m
 	push $formatScanf
 	call scanf
 	pop %ebx
 	pop %ebx
-// incrementam liniile cu 2, pt a obtine matricea extinsa
-	movl m, %eax 
-	addl $2, %eax
-	movl %eax, m
+// dupa citire pastram m + 2 - 1 in decm pt a putea parcurge matricea fara bordura
+	incl m
+	movl m, %eax
+	movl %eax, decm
+	incl m
 		
 	push $n
 	push $formatScanf
 	call scanf
 	pop %ebx
 	pop %ebx
-// incrementam cu 2 si coloanele
+// analog si pt n
+	incl n
 	movl n, %eax
-	addl $2, %eax
-	movl %eax, n
+	movl %eax, decn
+	incl n
 	
 	push $p
 	push $formatScanf
@@ -45,15 +49,16 @@ main:
 	pop %ebx
 	pop %ebx
 	
-	// incarcam matricile in edi si esi
+// incarcam matricile in edi si esi
 	lea matrice, %edi
 	lea copy_matrice, %esi
+
 
 // de p ori citim celulele
 citire_celule:
 	movl count, %ecx
 	cmp %ecx, p
-	je afisare_matrice
+	je citire_k
 	
 // daca < p , citim index-ul din stanga apoi cel din dreapta
 	push $lineIndex
@@ -69,13 +74,8 @@ citire_celule:
 	pop %ebx
 	
 // incrementam cei doi indexi abia cititi, pt a plasa 1 la adresa potrivita
-	movl lineIndex, %eax
-	incl %eax
-	movl %eax, lineIndex
-	
-	movl columnIndex, %eax
-	incl %eax
-	movl %eax, columnIndex
+	incl lineIndex
+	incl columnIndex
 	
 // vom modifica matrice[lineIndex][columnIndex] pt ambele matrici
 	movl $0, %edx
@@ -88,51 +88,98 @@ citire_celule:
 	incl count
 	jmp citire_celule
 
+
+citire_k:
+	push $k
+	push $formatScanf
+	call scanf
+	pop %ebx
+	pop %ebx
+	jmp afisare_matrice
+
+for_k:
+	movl k, %ecx
+	cmpl $0, %ecx
+	je afisare_matrice
+	
+	movl $1, lineIndex
+	parcurgere_linii:
+		movl lineIndex, %ecx 
+		cmp %ecx, decm
+		je cont_for_k
+		
+		movl $1, columnIndex
+		parcurgere_coloane:
+			movl columnIndex, %ecx
+			cmp %ecx, decn
+			je cont_parcurgere_linii
+			
+			// parcurgere vecini pentru fiecare element
+			// modificam elementul in copy_matrice
+			
+			incl columnIndex
+			jmp parcurgere_coloane
+			
+	cont_parcurgere_linii:
+		incl lineIndex
+		jmp parcurgere_linii
+		
+cont_for_k:
+	// trecem din copie in matrice
+	decl k
+	jmp for_k
+	
+
+
+
+
+
+
 afisare_matrice:
 	movl $0, lineIndex
 
-for_lines:
-	movl lineIndex, %ecx 
-	cmp %ecx, m
-	je et_exit
-
-	movl $0, columnIndex
-	for_columns:
-		movl columnIndex, %ecx
-		cmp %ecx, n
-		je cont_for_lines
-
-
-	movl lineIndex, %eax
+	for_lines:
+		movl lineIndex, %ecx 
+		cmp %ecx, m
+		je et_exit
 	
-	mull m
+		movl $0, columnIndex
+		for_columns:
+			movl columnIndex, %ecx
+			cmp %ecx, n
+			je cont_for_lines
 	
-	addl columnIndex, %eax
+	
+		movl lineIndex, %eax
+		
+		mull m
+		
+		addl columnIndex, %eax
+	
+		movl (%edi, %eax, 4), %ebx
 
-	movl (%edi, %eax, 4), %ebx
+		pushl %ebx
+		push $formatPrintf
+		call printf
+		pop %ebx
+		pop %ebx
 
-	pushl %ebx
-	push $formatPrintf
-	call printf
-	pop %ebx
-	pop %ebx
+		pushl $0
+		call fflush
+		pop %ebx
 
-	pushl $0
-	call fflush
-	pop %ebx
+		addl $1, columnIndex
+		jmp for_columns
 
-	addl $1, columnIndex
-	jmp for_columns
+	cont_for_lines:
+		mov $4, %eax
+		mov $1, %ebx
+		mov $endl, %ecx
+		mov $2, %edx
+		int $0x80
 
-cont_for_lines:
-	mov $4, %eax
-	mov $1, %ebx
-	mov $endl, %ecx
-	mov $2, %edx
-	int $0x80
-
-	addl $1, lineIndex
-	jmp for_lines
+		addl $1, lineIndex
+		jmp for_lines
 
 et_exit:
 	movl $1, %eax
