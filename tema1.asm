@@ -10,6 +10,10 @@
 	columnIndex: .space 4
 	p: .space 4
 	k: .space 4
+	i: .space 4
+	j: .space 4
+	iVecini: .space 4
+	jVecini: .space 4
 	count: .zero 4
 	matrice: .zero 1600
 	copy_matrice: .zero 1600
@@ -95,7 +99,7 @@ citire_k:
 	call scanf
 	pop %ebx
 	pop %ebx
-	jmp afisare_matrice
+	jmp for_k
 
 for_k:
 	movl k, %ecx
@@ -114,9 +118,90 @@ for_k:
 			cmp %ecx, decn
 			je cont_parcurgere_linii
 			
-			// parcurgere vecini pentru fiecare element
-			// modificam elementul in copy_matrice
+// parcurgere vecini pentru fiecare element
+// for ( i = lineIndex - 1; i < lineIndex + 2; i++ )
+// 	for ( j = columnIndex - 1; j < columnIndex + 2; j++ )
+// lineIndex + 2 si columnIndex + 2 vor fi iVecini respectiv jVecini
+
+			movl lineIndex, %eax
+			movl %eax, i
+			decl i
 			
+			movl lineIndex, %eax 
+			movl %eax, iVecini
+			addl $2, iVecini
+			
+			movl columnIndex, %eax
+			movl %eax, jVecini
+			addl $2, jVecini
+			
+			movl $0, count
+			for_lineIndex:
+				movl i, %ecx
+				cmp %ecx, iVecini
+				je modificare_copy_matrice
+				
+				movl columnIndex, %eax
+				movl %eax, j
+				decl j
+				for_columnIndex:
+					movl j, %ecx
+					cmp %ecx, jVecini
+					je cont_for_lineIndex
+					
+					movl i, %eax
+					mull decm
+					addl j, %eax
+					movl (%edi, %eax, 4), %ebx
+					addl %ebx, count
+					
+					incl j
+					jmp for_columnIndex
+					
+			cont_for_lineIndex:
+				incl i
+				jmp for_lineIndex					
+			
+			
+			modificare_copy_matrice:
+// verificam care este suma vecinilor si modificam elementul in copy_matrice
+				
+				movl lineIndex, %eax
+				mull decm
+				addl columnIndex, %eax
+				movl (%edi, %eax, 4), %ebx
+				
+				cmpl $1, %ebx
+				je celula_in_viata
+				jmp celula_moarta
+				
+				celula_in_viata:
+//scadem 1 din nr de vecini
+					 decl count
+					 movl count, %ecx
+					 cmpl $2, %ecx
+					 je va_exista
+					 cmpl $3, %ecx
+					 je va_exista
+					 
+					 jmp nu_va_exista
+					 
+				celula_moarta:
+					movl count, %ecx
+					cmpl $3, %ecx
+					je va_exista
+					
+					jmp nu_va_exista
+					
+				va_exista:
+					movl $1, (%esi, %eax, 4)
+					jmp cont_parcurgere_coloane
+					
+				nu_va_exista:
+					movl $0, (%esi, %eax, 4)
+					jmp cont_parcurgere_coloane
+			
+		cont_parcurgere_coloane:
 			incl columnIndex
 			jmp parcurgere_coloane
 			
@@ -125,14 +210,33 @@ for_k:
 		jmp parcurgere_linii
 		
 cont_for_k:
-	// trecem din copie in matrice
 	decl k
-	jmp for_k
 	
+// trecem din copie in matrice
+	movl $1, lineIndex
+	for_copiere_lines:
+		movl lineIndex, %ecx
+		cmp %ecx, decm
+		je for_k
+		
+		movl $1, columnIndex
+		for_copiere_columns:
+			movl columnIndex, %ecx
+			cmp %ecx, decn
+			je cont_for_copiere_lines
+		
+			movl lineIndex, %eax
+			mull decm
+			addl columnIndex, %eax
+			movl (%esi, %eax, 4), %ebx
+			movl %ebx, (%edi, %eax, 4)
+			
+			incl columnIndex
+			jmp for_copiere_columns
 
-
-
-
+	cont_for_copiere_lines:
+		incl lineIndex
+		jmp for_copiere_lines
 
 
 afisare_matrice:
@@ -150,26 +254,26 @@ afisare_matrice:
 			je cont_for_lines
 	
 	
-		movl lineIndex, %eax
+			movl lineIndex, %eax
 		
-		mull m
+			mull m	
 		
-		addl columnIndex, %eax
-	
-		movl (%edi, %eax, 4), %ebx
+			addl columnIndex, %eax
 
-		pushl %ebx
-		push $formatPrintf
-		call printf
-		pop %ebx
-		pop %ebx
+			movl (%edi, %eax, 4), %ebx
 
-		pushl $0
-		call fflush
-		pop %ebx
+			pushl %ebx
+			push $formatPrintf
+			call printf
+			pop %ebx
+			pop %ebx
 
-		addl $1, columnIndex
-		jmp for_columns
+			pushl $0
+			call fflush
+			pop %ebx
+
+			addl $1, columnIndex
+			jmp for_columns
 
 	cont_for_lines:
 		mov $4, %eax
