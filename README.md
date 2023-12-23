@@ -19,10 +19,10 @@ The implementation in this repository is written in x86 Assembly language. It in
 
 1. Clone the repository:
 
-   ```bash
-   git clone https://github.com/furtunavlad/asc.git
-   cd asc
-
+```bash
+git clone https://github.com/furtunavlad/assembly-game-of-life.git
+cd assembly-game-of-life
+```
 2. Assemble and run the program:
 ```bash
   as --32 conway.asm -o conway.o
