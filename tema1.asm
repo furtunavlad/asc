@@ -87,7 +87,6 @@ citire_celule:
 	mull m
 	addl columnIndex, %eax
 	movl $1, (%edi, %eax, 4)
-	movl $1, (%esi, %eax, 4)
 	
 	incl count
 	jmp citire_celule
@@ -136,7 +135,7 @@ for_k:
 			addl $2, jVecini
 			
 			movl $0, count
-			for_lineIndex:
+			for_lineIndex:				
 				movl i, %ecx
 				cmp %ecx, iVecini
 				je modificare_copy_matrice
@@ -144,13 +143,14 @@ for_k:
 				movl columnIndex, %eax
 				movl %eax, j
 				decl j
+				
 				for_columnIndex:
 					movl j, %ecx
 					cmp %ecx, jVecini
 					je cont_for_lineIndex
 					
 					movl i, %eax
-					mull decm
+					mull m
 					addl j, %eax
 					movl (%edi, %eax, 4), %ebx
 					addl %ebx, count
@@ -167,7 +167,7 @@ for_k:
 // verificam care este suma vecinilor si modificam elementul in copy_matrice
 				
 				movl lineIndex, %eax
-				mull decm
+				mull m
 				addl columnIndex, %eax
 				movl (%edi, %eax, 4), %ebx
 				
@@ -213,20 +213,20 @@ cont_for_k:
 	decl k
 	
 // trecem din copie in matrice
-	movl $1, lineIndex
+	movl $0, lineIndex
 	for_copiere_lines:
 		movl lineIndex, %ecx
-		cmp %ecx, decm
+		cmp %ecx, m
 		je for_k
 		
-		movl $1, columnIndex
+		movl $0, columnIndex
 		for_copiere_columns:
 			movl columnIndex, %ecx
-			cmp %ecx, decn
+			cmp %ecx, n
 			je cont_for_copiere_lines
 		
 			movl lineIndex, %eax
-			mull decm
+			mull m
 			addl columnIndex, %eax
 			movl (%esi, %eax, 4), %ebx
 			movl %ebx, (%edi, %eax, 4)
@@ -240,23 +240,23 @@ cont_for_k:
 
 
 afisare_matrice:
-	movl $0, lineIndex
+	movl $1, lineIndex
 
 	for_lines:
 		movl lineIndex, %ecx 
-		cmp %ecx, m
+		cmp %ecx, decm
 		je et_exit
 	
-		movl $0, columnIndex
+		movl $1, columnIndex
 		for_columns:
 			movl columnIndex, %ecx
-			cmp %ecx, n
+			cmp %ecx, decn
 			je cont_for_lines
 	
 	
 			movl lineIndex, %eax
 		
-			mull m	
+			mull decm
 		
 			addl columnIndex, %eax
 
