@@ -1,6 +1,6 @@
 # Game of Life in Assembly
 
-This repository contains an implementation of Conway's Game of Life in x86 AT&T Assembly.
+This repository contains an implementation of Conway's Game of Life in x86 AT&T Assembly, written by me as a project for "Computer Systems Architecture" University course.
 
 ## Description
 
