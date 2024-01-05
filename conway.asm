@@ -256,7 +256,7 @@ afisare_matrice:
 	
 			movl lineIndex, %eax
 		
-			mull decm
+			mull m
 		
 			addl columnIndex, %eax
 
